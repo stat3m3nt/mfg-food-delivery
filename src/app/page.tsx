@@ -1,65 +1,83 @@
-import Image from "next/image";
+/**
+ * Home page / Menu page
+ *
+ * This is a React Server Component — it fetches menu data at request time
+ * from Sanity. No useEffect, no loading states on the server.
+ *
+ * The page revalidates every 60 seconds so new menu items appear quickly
+ * after the owner publishes them in Sanity Studio.
+ */
+import { client } from '@/lib/sanity/client';
+import { MENU_QUERY } from '@/lib/sanity/queries';
+import { MenuCategory } from '@/types/menu';
+import MenuSection from '@/components/menu/MenuSection';
+import CartDrawer from '@/components/cart/CartDrawer';
+import CartButton from '@/components/cart/CartButton';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 
-export default function Home() {
+// Next.js ISR — revalidate every 60 seconds
+export const revalidate = 60;
+
+export default async function HomePage() {
+  // Fetch menu from Sanity (server-side)
+  const categories: MenuCategory[] = await client.fetch(MENU_QUERY);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      <Navbar />
+
+      <main className="min-h-screen bg-[#faf9f7]">
+        {/* Hero Section */}
+        <section className="bg-gray-900 text-white py-20 px-6 text-center">
+          <p className="text-orange-400 font-semibold tracking-widest text-sm uppercase mb-4">
+            Fresh Food Delivered
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          <h1 className="font-display text-5xl md:text-7xl font-black mb-6 leading-tight">
+            Our Menu
+          </h1>
+          <p className="text-gray-400 text-lg max-w-xl mx-auto">
+            Freshly prepared dishes, delivered to your door. Our menu rotates regularly —
+            something new to discover every week.
+          </p>
+        </section>
+
+        {/* Category Nav (sticky) */}
+        {categories.length > 0 && (
+          <nav className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
+            <div className="max-w-6xl mx-auto px-6 py-4 flex gap-4 overflow-x-auto scrollbar-hide">
+              {categories.map((cat) => (
+                <a
+                  key={cat._id}
+                  href={`#${cat.slug}`}
+                  className="shrink-0 text-sm font-semibold text-gray-600 hover:text-orange-500 transition-colors"
+                >
+                  {cat.title}
+                </a>
+              ))}
+            </div>
+          </nav>
+        )}
+
+        {/* Menu Content */}
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          {categories.length === 0 ? (
+            <p className="text-center text-gray-400 py-24 text-lg">
+              Menu coming soon — check back shortly!
+            </p>
+          ) : (
+            categories.map((category) => (
+              <MenuSection key={category._id} category={category} />
+            ))
+          )}
         </div>
       </main>
-    </div>
+
+      <Footer />
+
+      {/* Cart components — client-side */}
+      <CartButton />
+      <CartDrawer />
+    </>
   );
 }
