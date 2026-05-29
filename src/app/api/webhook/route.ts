@@ -17,10 +17,6 @@ import { stripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { sendOrderConfirmation, sendOwnerNotification } from '@/lib/email';
 
-export const config = {
-  api: { bodyParser: false }, // Required for Stripe signature verification
-};
-
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get('stripe-signature')!;

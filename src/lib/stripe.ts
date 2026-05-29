@@ -6,6 +6,6 @@
 import Stripe from 'stripe';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20', // Pin to a stable API version
+  apiVersion: '2026-04-22.dahlia', // Pin to a stable API version
   typescript: true,
 });
