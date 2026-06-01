@@ -38,7 +38,7 @@ export default function DishCard({ dish }: DishCardProps) {
       )}
     >
       {/* Dish image */}
-      <div style={{ position: 'relative', height: '192px', width: '100%', overflow: 'hidden', backgroundColor: '#f3f4f6' }}>
+      <div style={{ position: 'relative', height: '192px', width: '100%', overflow: 'hidden', backgroundColor: '#f3f4f6' , borderRadius: '16px 16px 0 0'}}>
       <Image
           src={dish.image}
           alt={dish.imageAlt || dish.name}
