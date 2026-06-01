@@ -31,7 +31,7 @@ export default function Navbar() {
               MFG
             </span>
             <p className="text-xs leading-none" style={{ color: '#8a6a50', letterSpacing: '0.1em' }}>
-              Mom&apos;s Fried Goods - Nigerian Flavours, Fast Delivery
+              Mama&apos;s Fried Goods - Nigerian Flavours, Fast Delivery
             </p>
           </div>
         </Link>
