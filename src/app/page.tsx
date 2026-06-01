@@ -1,12 +1,3 @@
-/**
- * Home page / Menu page
- *
- * This is a React Server Component — it fetches menu data at request time
- * from Sanity. No useEffect, no loading states on the server.
- *
- * The page revalidates every 60 seconds so new menu items appear quickly
- * after the owner publishes them in Sanity Studio.
- */
 import { client } from '@/lib/sanity/client';
 import { MENU_QUERY } from '@/lib/sanity/queries';
 import { MenuCategory } from '@/types/menu';
@@ -16,42 +7,32 @@ import CartButton from '@/components/cart/CartButton';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 
-// Next.js ISR — revalidate every 60 seconds
 export const revalidate = 60;
 
 export default async function HomePage() {
-  // Fetch menu from Sanity (server-side)
   const categories: MenuCategory[] = await client.fetch(MENU_QUERY);
 
   return (
     <>
       <Navbar />
-
-      <main className="min-h-screen bg-[#faf9f7]">
-        {/* Hero Section */}
-        <section className="bg-gray-900 text-white py-20 px-6 text-center">
-          <p className="text-orange-400 font-semibold tracking-widest text-sm uppercase mb-4">
-            Fresh Food Delivered
+      <main className="min-h-screen" style={{ background: '#fdf6ec' }}>
+        <section style={{ background: '#1a0800' }} className="text-white py-20 px-6 text-center">
+          <p className="font-semibold text-sm uppercase mb-4" style={{ color: '#f97316', letterSpacing: '0.2em' }}>
+            Fresh · Fried · Delivered
           </p>
-          <h1 className="font-display text-5xl md:text-7xl font-black mb-6 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight" style={{ fontFamily: 'Playfair Display, Georgia, serif' }}>
             Our Menu
           </h1>
-          <p className="text-gray-400 text-lg max-w-xl mx-auto">
-            Freshly prepared dishes, delivered to your door. Our menu rotates regularly —
-            something new to discover every week.
+          <p className="text-lg max-w-xl mx-auto" style={{ color: '#a87860' }}>
+            Freshly prepared dishes, delivered to your door. Our menu rotates regularly — something new to discover every week.
           </p>
         </section>
 
-        {/* Category Nav (sticky) */}
         {categories.length > 0 && (
-          <nav className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
-            <div className="max-w-6xl mx-auto px-6 py-4 flex gap-4 overflow-x-auto scrollbar-hide">
+          <nav className="sticky top-16 z-40 shadow-sm" style={{ background: '#fff', borderBottom: '1px solid #f0e6d3' }}>
+            <div className="max-w-6xl mx-auto px-6 py-4 flex gap-6 overflow-x-auto">
               {categories.map((cat) => (
-                <a
-                  key={cat._id}
-                  href={`#${cat.slug}`}
-                  className="shrink-0 text-sm font-semibold text-gray-600 hover:text-orange-500 transition-colors"
-                >
+                <a key={cat._id} href={`#${cat.slug}`} className="shrink-0 text-sm font-semibold transition-colors" style={{ color: '#8a6a50' }}>
                   {cat.title}
                 </a>
               ))}
@@ -59,10 +40,9 @@ export default async function HomePage() {
           </nav>
         )}
 
-        {/* Menu Content */}
         <div className="max-w-6xl mx-auto px-6 py-16">
           {categories.length === 0 ? (
-            <p className="text-center text-gray-400 py-24 text-lg">
+            <p className="text-center py-24 text-lg" style={{ color: '#8a6a50' }}>
               Menu coming soon — check back shortly!
             </p>
           ) : (
@@ -72,10 +52,7 @@ export default async function HomePage() {
           )}
         </div>
       </main>
-
       <Footer />
-
-      {/* Cart components — client-side */}
       <CartButton />
       <CartDrawer />
     </>

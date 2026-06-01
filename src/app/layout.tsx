@@ -4,7 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'MFG | Fresh Food Delivered to Your Door',
   description:
-    'Order freshly prepared meals from MFG. Fast delivery, rotating seasonal menu, and great flavours.',
+    'Order freshly prepared meals from MFG - Mom\'s Fried Goods. Fast delivery, rotating seasonal menu, and great flavours.',
   openGraph: {
     title: 'MFG Food Delivery',
     description: 'Fresh food delivered to your door.',
