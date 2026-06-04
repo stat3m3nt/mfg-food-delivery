@@ -17,10 +17,11 @@ export default function MenuSection({ category }: MenuSectionProps) {
     <section id={category.slug} className="mb-16 scroll-mt-24">
 
       {/* Centered header block */}
-      <div>
+      <div className="text-center mb-10">
         <h2 className="font-display text-3xl font-bold text-gray-900 mb-2">
           {category.title}
         </h2>
+        
         <div className="flex justify-center mt-3">
           <div className="w-16 h-1 bg-orange-500 rounded-full mb-8" />
         </div>
