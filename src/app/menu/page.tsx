@@ -30,7 +30,7 @@ export default async function HomePage() {
 
         {categories.length > 0 && (
           <nav className="sticky top-16 z-40 shadow-sm" style={{ background: '#fff', borderBottom: '1px solid #f0e6d3' }}>
-            <div className="max-w-6xl mx-auto px-6 py-4 flex gap-6 overflow-x-auto justify-center">
+            <div className="max-w-6xl mx-auto px-6 py-4 flex gap-6 overflow-x-auto scrollbar-hide justify-start md:justify-center flex-nowrap">
               {categories.map((cat) => (
                 <a key={cat._id} href={`#${cat.slug}`} className="shrink-0 text-sm font-semibold transition-colors" style={{ color: '#8a6a50' }}>
                   {cat.title}
