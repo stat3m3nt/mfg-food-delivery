@@ -43,18 +43,21 @@ export default function AboutPage() {
                   Cooking Has Always Been Her Language
                 </h2>
                 <p className="leading-relaxed mb-4" style={{ color: '#8a6a50' }}>
-                  Mama V has been feeding people for as long as she can remember. Growing up with Nigerian roots,
-                  food was never just sustenance — it was how her family showed love, celebrated life, and stayed connected
-                  to home no matter where they were.
+                  MFG was built on a simple idea — comfort food should feel bold, indulgent, and unforgettable. 
+                  We specialise in fried comfort dishes inspired by West African street flavours, Southern soul food, and modern London food culture. Every dish is crafted around one obsession: texture — crisp, golden, smoky, and deeply satisfying.
+
                 </p>
+                
                 <p className="leading-relaxed mb-4" style={{ color: '#8a6a50' }}>
-                  After years of friends and family begging her to share her cooking with the world, she took the leap.
-                  MFG — Mama&apos;s Fried Goods — was born right here in the West End of London, with one simple promise:
-                  real food, made with real love.
+                MFG — Mac&apos;s Fried Goods — was born right here in the West End of London, with one simple promise:
+                real food, made with real love. 
+                This is food made for cravings — late nights, quick lunches, shared meals, and moments when only something rich, warm, and freshly cooked will do.
+
                 </p>
+
                 <p className="leading-relaxed" style={{ color: '#8a6a50' }}>
-                  From her signature jollof rice to golden puff puff and hearty Nigerian soups, every dish on the menu
-                  carries the same warmth you&apos;d find in her kitchen.
+                  We don’t overcomplicate food. We refine it, crisp it, season it properly, and serve it hot.
+                  Mac’s Fried Goods is more than a kitchen — it’s a celebration of fried comfort done properly.
                 </p>
               </div>
 
@@ -69,7 +72,7 @@ export default function AboutPage() {
                 >
                   Mama V
                 </h3>
-                <p style={{ color: '#f97316' }} className="font-semibold mb-4">Founder & Head Chef</p>
+                <p style={{ color: '#f97316' }} className="font-semibold mb-4">Head Chef</p>
                 <p className="text-sm" style={{ color: '#a87860' }}>
                   &ldquo;I cook the way my mother taught me — with patience, with love, and never with shortcuts.&rdquo;
                 </p>
@@ -111,7 +114,7 @@ export default function AboutPage() {
                 Ready to Taste the Difference?
               </h2>
               <p className="mb-8" style={{ color: '#8a6a50' }}>
-                Browse Mama V&apos;s menu and place your order today.
+                Browse MFG&apos;s menu and place your order today.
               </p>
               <Link
                 href="/menu"

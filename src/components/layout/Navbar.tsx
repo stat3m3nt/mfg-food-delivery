@@ -32,7 +32,7 @@ export default function Navbar() {
               MFG
             </span>
             <p className="text-xs leading-none" style={{ color: '#8a6a50', letterSpacing: '0.1em' }}>
-              Mama&apos;s Fried Goods
+              Mac's&apos;s Fried Goods
             </p>
           </div>
         </Link>

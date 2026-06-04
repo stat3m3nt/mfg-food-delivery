@@ -9,7 +9,7 @@ export default function Footer() {
           >
             MFG
           </p>
-          <p className="text-sm" style={{ color: '#a87860' }}>Mama's Fried Goods — Fresh, Fried, Delivered</p>
+          <p className="text-sm" style={{ color: '#a87860' }}>Mac's Fried Goods — Fresh, Fried, Delivered</p>
         </div>
         <div className="text-center text-sm" style={{ color: '#a87860' }}>
           <p>📍 Delivering across London</p>
