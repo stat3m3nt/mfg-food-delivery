@@ -4,7 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'MFG | Fresh Food Delivered to Your Door',
   icons: {
-    icon: '/flame.svg?v=2',
+    icon: "/favicon.ico",
   },
   description:
     'Order freshly prepared meals from MFG - Mom\'s Fried Goods. Fast delivery, rotating seasonal menu, and great flavours.',
