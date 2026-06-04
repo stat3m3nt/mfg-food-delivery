@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -31,21 +32,21 @@ export default function Navbar() {
               MFG
             </span>
             <p className="text-xs leading-none" style={{ color: '#8a6a50', letterSpacing: '0.1em' }}>
-              Mama&apos;s Fried Goods - Nigerian Flavours, Fast Delivery
+              Mama&apos;s Fried Goods
             </p>
           </div>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
-          <a href="/" style={{ color: '#8a6a50', fontSize: '14px', fontWeight: 500 }}>Menu</a>
-          <a href="#" style={{ color: '#8a6a50', fontSize: '14px', fontWeight: 500 }}>About</a>
-          
-           <a href="/checkout"
-            className="px-5 py-2 rounded-full text-white font-semibold text-sm transition-all"
+          <Link href="/menu" style={{ color: '#8a6a50', fontSize: '14px', fontWeight: 500 }}>Menu</Link>
+          <Link href="/about" style={{ color: '#8a6a50', fontSize: '14px', fontWeight: 500 }}>About</Link>
+          <Link
+            href="/menu"
+            className="px-5 py-2 rounded-full text-white font-semibold text-sm transition-all hover:scale-105"
             style={{ background: '#f97316' }}
           >
             Order Now
-          </a>
+          </Link>
         </nav>
       </div>
     </header>
