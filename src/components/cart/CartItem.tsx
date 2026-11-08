@@ -30,7 +30,7 @@ export default function CartItem({ item }: { item: CartItemType }) {
         </button>
         <span className="w-6 text-center font-semibold">{item.quantity}</span>
         <button
-          onClick={() => addItem({ _id: item.id, name: item.name, price: item.price / 100, image: item.image } as any)}
+          onClick={() => addItem({ _id: item.id, name: item.name, description: '', price: item.price / 100, image: item.image, slug: '' })}
           className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-orange-100 hover:text-orange-500 transition-colors"
           aria-label={`Add another ${item.name}`}
         >

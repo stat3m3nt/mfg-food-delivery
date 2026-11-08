@@ -80,9 +80,9 @@ export default function CheckoutForm() {
       }
 
       const { url } = await response.json();
-      window.location.href = url;
-    } catch (err: any) {
-      setError(err.message);
+      window.location.assign(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
       setIsSubmitting(false);
     }
   };
