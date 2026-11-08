@@ -158,6 +158,32 @@ Webhooks are more reliable — a customer could close their browser after paymen
 
 ---
 
+## Security & Known Limitations
+
+**Implemented**
+- Prices are always looked up server-side from Sanity; the browser sends only dish IDs and quantities (tampered prices are ignored, covered by tests).
+- Server-side request validation with Zod (quantity bounds, field lengths, email format).
+- Stripe webhook signature verification, and an idempotent handler (duplicate deliveries are acknowledged, not re-processed or re-emailed).
+- Order lines are read back from Stripe line items rather than stuffed into metadata (metadata values are capped at 500 characters).
+- User-supplied text is HTML-escaped in emails.
+
+**Known gaps / next steps**
+- The `/admin` page is protected by a shared secret in the query string. This is adequate for a single-owner prototype but should be replaced with real authentication (Supabase Auth or NextAuth) and role checks.
+- No rate limiting on `/api/checkout`.
+- No end-to-end tests (Playwright) yet; unit and route tests run in CI.
+
+## Testing
+
+```bash
+npm test          # Vitest: pricing, validation, order mapping, checkout route
+npm run typecheck
+npm run lint
+```
+
+CI (GitHub Actions) runs lint, typecheck and tests on every push and pull request.
+
+---
+
 ## Environment Variables
 
 See `.env.example` for all required variables. Never commit `.env.local`.
