@@ -36,3 +36,13 @@ export const DISH_BY_SLUG_QUERY = groq`
     featured
   }
 `;
+
+// Authoritative price lookup for checkout. Only dishes that are currently available.
+export const DISHES_BY_IDS_QUERY = groq`
+  *[_type == "dish" && _id in $ids && available == true] {
+    _id,
+    name,
+    price,
+    "image": image.asset->url
+  }
+`;

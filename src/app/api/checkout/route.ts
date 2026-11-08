@@ -1,41 +1,43 @@
 /**
  * POST /api/checkout
  *
- * Creates a Stripe Checkout Session with:
- * - Line items from the cart
- * - Delivery fee as a separate line item
- * - Customer details stored in Stripe metadata (retrieved via webhook)
- * - Success and cancel URLs
+ * Creates a Stripe Checkout Session.
+ *  - The request is validated with Zod.
+ *  - Prices come from the CMS, never from the request body.
+ *  - Only small, fixed-size customer details go in Stripe metadata (500-char limit per value);
+ *    the order lines are read back from the session's line items in the webhook.
  *
  * Returns: { url: string } — redirect the user to this Stripe-hosted page
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { CartItem } from '@/store/cartStore';
-import { DeliveryAddress } from '@/types/order';
-
-const DELIVERY_FEE_PENCE = 299; // £2.99
-
-interface CheckoutBody {
-  items: CartItem[];
-  customerDetails: {
-    name: string;
-    email: string;
-    phone: string;
-  };
-  deliveryAddress: DeliveryAddress;
-  notes?: string;
-}
+import { client } from '@/lib/sanity/client';
+import { DISHES_BY_IDS_QUERY } from '@/lib/sanity/queries';
+import { CartError, priceCart, type CmsDish } from '@/lib/pricing';
+import { checkoutBodySchema } from '@/lib/validation';
+import { DELIVERY_LINE_ITEM_NAME } from '@/lib/constants';
 
 export async function POST(req: NextRequest) {
+  let json: unknown;
   try {
-    const body: CheckoutBody = await req.json();
-    const { items, customerDetails, deliveryAddress, notes } = body;
+    json = await req.json();
+  } catch {
+    return NextResponse.json({ message: 'Invalid JSON body' }, { status: 400 });
+  }
 
-    // Basic server-side validation
-    if (!items || items.length === 0) {
-      return NextResponse.json({ message: 'Cart is empty' }, { status: 400 });
-    }
+  const parsed = checkoutBodySchema.safeParse(json);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { message: 'Invalid checkout request', issues: parsed.error.issues },
+      { status: 400 }
+    );
+  }
+  const { items, customerDetails, deliveryAddress, notes } = parsed.data;
+
+  try {
+    const ids = [...new Set(items.map((i) => i.id))];
+    const dishes = await client.fetch<CmsDish[]>(DISHES_BY_IDS_QUERY, { ids });
+    const cart = priceCart(items, dishes);
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -43,52 +45,48 @@ export async function POST(req: NextRequest) {
       payment_method_types: ['card'],
       mode: 'payment',
       customer_email: customerDetails.email,
-
-      // Map cart items to Stripe line items
       line_items: [
-        ...items.map((item) => ({
+        ...cart.items.map((item) => ({
           price_data: {
             currency: 'gbp',
             product_data: {
               name: item.name,
-              images: [item.image],
+              ...(item.image ? { images: [item.image] } : {}),
+              metadata: { dishId: item.id },
             },
-            unit_amount: item.price, // already in pence
+            unit_amount: item.unitPence,
           },
           quantity: item.quantity,
         })),
-        // Delivery fee as a separate line item
         {
           price_data: {
             currency: 'gbp',
-            product_data: { name: 'Delivery' },
-            unit_amount: DELIVERY_FEE_PENCE,
+            product_data: { name: DELIVERY_LINE_ITEM_NAME },
+            unit_amount: cart.deliveryPence,
           },
           quantity: 1,
         },
       ],
-
-      // Store order data in metadata — retrieved by the webhook after payment
-      // Note: Stripe metadata values must be strings
       metadata: {
         customerName: customerDetails.name,
         customerEmail: customerDetails.email,
         customerPhone: customerDetails.phone,
         deliveryAddress: JSON.stringify(deliveryAddress),
-        items: JSON.stringify(items),
-        notes: notes || '',
+        notes: notes ?? '',
       },
-
       success_url: `${baseUrl}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout`,
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (error: any) {
-    console.error('[/api/checkout] Error:', error.message);
-    return NextResponse.json(
-      { message: 'Failed to create checkout session' },
-      { status: 500 }
-    );
+  } catch (error) {
+    if (error instanceof CartError) {
+      return NextResponse.json(
+        { message: error.message, unavailableIds: error.unavailableIds },
+        { status: 409 }
+      );
+    }
+    console.error('[/api/checkout] Error:', error instanceof Error ? error.message : error);
+    return NextResponse.json({ message: 'Failed to create checkout session' }, { status: 500 });
   }
 }

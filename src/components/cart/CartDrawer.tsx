@@ -1,22 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useHydrated } from '@/hooks/useHydrated';
 import { useRouter } from 'next/navigation';
 import { X, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import CartItem from './CartItem';
 import { formatPrice } from '@/utils/formatPrice';
 
-const DELIVERY_FEE = 299;
+import { DELIVERY_FEE_PENCE as DELIVERY_FEE } from '@/lib/constants';
 
 export default function CartDrawer() {
   const { items, isOpen, setOpen, total, itemCount } = useCartStore();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
   const router = useRouter();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted) return null;
 

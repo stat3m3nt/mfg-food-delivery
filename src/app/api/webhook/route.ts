@@ -2,83 +2,70 @@
  * POST /api/webhook (Stripe)
  *
  * Called by Stripe after a successful payment.
- * Verifies the webhook signature (prevents fake events).
- * On checkout.session.completed:
- *   1. Saves the order to Supabase
- *   2. Sends confirmation email to customer
- *   3. Sends new order notification to owner
+ *  - Verifies the webhook signature (prevents forged events).
+ *  - On checkout.session.completed: reads the line items from Stripe, saves the order,
+ *    then sends emails.
+ *  - Idempotent: Stripe may deliver an event more than once. A duplicate delivery
+ *    (unique violation on stripe_session_id) is acknowledged without re-sending emails.
  *
- * IMPORTANT: This route must receive the raw request body for
- * signature verification. Do NOT parse it with NextResponse.json().
+ * IMPORTANT: this route must receive the raw request body for signature verification.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { sendOrderConfirmation, sendOwnerNotification } from '@/lib/email';
+import { buildOrderFromSession } from '@/lib/orders';
+
+const UNIQUE_VIOLATION = '23505';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
-  const signature = req.headers.get('stripe-signature')!;
+  const signature = req.headers.get('stripe-signature');
+
+  if (!signature) {
+    return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
+  }
 
   let event: Stripe.Event;
-
-  // Verify the event came from Stripe
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
-  } catch (err: any) {
-    console.error('[webhook] Signature verification failed:', err.message);
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
+  } catch (err) {
+    console.error('[webhook] Signature verification failed:', err instanceof Error ? err.message : err);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
-  // Handle the event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
-    const meta = session.metadata!;
 
-    const items = JSON.parse(meta.items);
-    const deliveryAddress = JSON.parse(meta.deliveryAddress);
-    const subtotal = session.amount_total! - 299; // Remove delivery fee
-    const total = session.amount_total!;
-
-    // Save order to Supabase
-    const { data: order, error } = await supabaseAdmin
-      .from('orders')
-      .insert({
-        stripe_session_id: session.id,
-        customer_name: meta.customerName,
-        customer_email: meta.customerEmail,
-        customer_phone: meta.customerPhone,
-        delivery_address: deliveryAddress,
-        items,
-        subtotal,
-        delivery_fee: 299,
-        total,
-        notes: meta.notes || null,
-        status: 'confirmed',
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('[webhook] Supabase insert failed:', error);
-      // Return 500 so Stripe retries the webhook
-      return NextResponse.json({ error: 'DB insert failed' }, { status: 500 });
+    // Ignore sessions that are not actually paid (e.g. delayed payment methods).
+    if (session.payment_status !== 'paid') {
+      return NextResponse.json({ received: true });
     }
 
-    // Send emails (non-blocking — don't let email failure fail the webhook)
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+      limit: 100,
+      expand: ['data.price.product'],
+    });
+
+    const row = buildOrderFromSession(session, lineItems.data);
+
+    const { data: order, error } = await supabaseAdmin.from('orders').insert(row).select().single();
+
+    if (error) {
+      if (error.code === UNIQUE_VIOLATION) {
+        // Already processed: acknowledge so Stripe stops retrying.
+        return NextResponse.json({ received: true, duplicate: true });
+      }
+      console.error('[webhook] Supabase insert failed:', error);
+      return NextResponse.json({ error: 'DB insert failed' }, { status: 500 }); // Stripe will retry
+    }
+
+    // Emails are best-effort: the order is already saved.
     try {
-      await Promise.all([
-        sendOrderConfirmation(order),
-        sendOwnerNotification(order),
-      ]);
+      await Promise.all([sendOrderConfirmation(order), sendOwnerNotification(order)]);
     } catch (emailErr) {
       console.error('[webhook] Email send failed:', emailErr);
-      // Don't return error — order is saved, emails are best-effort
     }
   }
 

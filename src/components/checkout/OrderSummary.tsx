@@ -3,7 +3,7 @@
 import { useCartStore } from '@/store/cartStore';
 import { formatPrice } from '@/utils/formatPrice';
 
-const DELIVERY_FEE = 299;
+import { DELIVERY_FEE_PENCE as DELIVERY_FEE } from '@/lib/constants';
 
 export default function OrderSummary() {
   const { items, total } = useCartStore();
