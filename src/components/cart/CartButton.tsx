@@ -1,16 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useHydrated } from '@/hooks/useHydrated';
 import { ShoppingBag } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 
 export default function CartButton() {
   const { setOpen, itemCount } = useCartStore();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useHydrated();
 
   if (!mounted) return null;
 
