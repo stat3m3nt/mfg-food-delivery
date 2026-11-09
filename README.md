@@ -1,4 +1,4 @@
-# MFG — Mama's Fried Goods 🔥
+# MFG — Mac's Fried Goods 🔥
 
 > A full-stack food delivery ordering platform built for a real UK food business.
 
@@ -8,7 +8,7 @@
 
 ## Overview
 
-MFG (Mama's Fried Goods) is a food delivery web application built for a London-based food business specialising in Nigerian cuisine and diverse comfort food. The platform allows customers to browse a rotating menu, add items to a cart, and complete payments online — while giving the business owner full control over the menu without touching any code.
+MFG (Mac's Fried Goods) is a food delivery web application built for a London-based food business specialising in Nigerian cuisine and diverse comfort food. The platform allows customers to browse a rotating menu, add items to a cart, and complete payments online — while giving the business owner full control over the menu without touching any code.
 
 ---
 
